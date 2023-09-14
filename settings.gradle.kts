@@ -11,3 +11,6 @@ pluginManagement {
 }
 
 rootProject.name = "shoot2"
+
+include(":ipv8")
+project(":ipv8").projectDir = file("kotlin-ipv8/ipv8")
