@@ -4,11 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4380d867-d754-4952-8703-ad989bd7a158" name="Changes" comment="Better logging and coroutine handling in Main.kt">
+    <list default="true" id="4380d867-d754-4952-8703-ad989bd7a158" name="Changes" comment="Get rid of annoying rule">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/Main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/Main.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/comms/IPV8Wrapper.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/comms/IPV8Wrapper.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -273,7 +270,23 @@
       <option name="project" value="LOCAL" />
       <updated>1694792984858</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Stuff kinda works">
+      <option name="closed" value="true" />
+      <created>1694811774298</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1694811774298</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Get rid of annoying rule">
+      <option name="closed" value="true" />
+      <created>1694811821765</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1694811821765</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -298,7 +311,9 @@
     <MESSAGE value="Add some ipv8 init code - and get logging to stdout working" />
     <MESSAGE value="Get ktlint's approval" />
     <MESSAGE value="Better logging and coroutine handling in Main.kt" />
-    <option name="LAST_COMMIT_MESSAGE" value="Better logging and coroutine handling in Main.kt" />
+    <MESSAGE value="Stuff kinda works" />
+    <MESSAGE value="Get rid of annoying rule" />
+    <option name="LAST_COMMIT_MESSAGE" value="Get rid of annoying rule" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
