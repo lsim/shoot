@@ -9,6 +9,8 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/kotlin-ipv8/ipv8" />
+            <option value="$PROJECT_DIR$/kotlin-ipv8/ipv8-jvm" />
+            <option value="$PROJECT_DIR$/kotlin-ipv8/tracker" />
           </set>
         </option>
       </GradleProjectSettings>
