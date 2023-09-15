@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4380d867-d754-4952-8703-ad989bd7a158" name="Changes" comment="Add some ipv8 init code - and get logging to stdout working" />
+    <list default="true" id="4380d867-d754-4952-8703-ad989bd7a158" name="Changes" comment="Get ktlint's approval">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/Main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/Main.kt" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -79,7 +82,7 @@
     "project.structure.last.edited": "Project",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.0",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "settings.editor.selected.configurable": "preferences.ktlint",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -200,7 +203,7 @@
       <workItem from="1694705284729" duration="6230000" />
       <workItem from="1694716414655" duration="831000" />
       <workItem from="1694717252339" duration="2344000" />
-      <workItem from="1694785511117" duration="6859000" />
+      <workItem from="1694785511117" duration="7366000" />
     </task>
     <task id="LOCAL-00001" summary="Upgrade gradle to 7.2">
       <option name="closed" value="true" />
@@ -242,7 +245,23 @@
       <option name="project" value="LOCAL" />
       <updated>1694792283962</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Get ktlint's approval">
+      <option name="closed" value="true" />
+      <created>1694792442304</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1694792442304</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Get ktlint's approval">
+      <option name="closed" value="true" />
+      <created>1694792575370</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1694792575370</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -265,7 +284,8 @@
     <MESSAGE value="Build + test working - BOOYAAH" />
     <MESSAGE value="- Get rid of jvm version warning&#10;- Get tracker running" />
     <MESSAGE value="Add some ipv8 init code - and get logging to stdout working" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add some ipv8 init code - and get logging to stdout working" />
+    <MESSAGE value="Get ktlint's approval" />
+    <option name="LAST_COMMIT_MESSAGE" value="Get ktlint's approval" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

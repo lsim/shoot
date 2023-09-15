@@ -15,9 +15,13 @@ import androidx.compose.ui.onExternalDrag
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import comms.IPV8Wrapper
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+
+private val scope = CoroutineScope(Dispatchers.Default)
+private val logger = KotlinLogging.logger {}
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -26,10 +30,10 @@ fun App() {
     var text by remember { mutableStateOf("Hello, World!") }
 
     val ipv8 = IPV8Wrapper()
-    val ipv8Job = CoroutineScope(Dispatchers.Default).launch {
-        println("ipv8 starting...")
+    val ipv8Job = scope.launch {
+        logger.info { "ipv8 starting..." }
         ipv8.run()
-        println("ipv8 finished")
+        logger.info { "ipv8 finished" }
     }
 
     MaterialTheme {
@@ -42,13 +46,13 @@ fun App() {
             value = text,
             onValueChange = { text = it },
             Modifier.onExternalDrag(
-                onDragStart = { externalDragValue -> println("Dragged! ${externalDragValue.dragData}") },
-                onDragExit = { println("Dragged out!") },
+                onDragStart = { externalDragValue -> logger.info { "Dragged! ${externalDragValue.dragData}" } },
+                onDragExit = { logger.info { "Dragged out!" } },
                 onDrop = { externalDropValue ->
                     val dragData = externalDropValue.dragData
                     if (dragData is DragData.FilesList) {
                         val filePaths = dragData.readFiles()
-                        println("Dropped! ${filePaths.firstOrNull()}")
+                        logger.info { "Dropped! ${filePaths.firstOrNull()}" }
                         text = filePaths.firstOrNull() ?: ""
                     }
                 },
