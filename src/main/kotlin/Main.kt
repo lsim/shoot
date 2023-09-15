@@ -17,7 +17,6 @@ import androidx.compose.ui.window.application
 import comms.IPV8Wrapper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import nl.tudelft.ipv8.Community
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -39,18 +38,22 @@ fun App() {
         }) {
             Text(text)
         }
-        TextField(value = text, onValueChange = { text = it }, Modifier.onExternalDrag(
-            onDragStart = { externalDragValue -> println("Dragged! ${externalDragValue.dragData}") },
-            onDragExit = { println("Dragged out!") },
-            onDrop = { externalDropValue ->
-                val dragData = externalDropValue.dragData
-                if (dragData is DragData.FilesList) {
-                    val filePaths = dragData.readFiles()
-                    println("Dropped! ${filePaths.firstOrNull()}")
-                    text = filePaths.firstOrNull() ?: ""
-                }
-            }
-        ))
+        TextField(
+            value = text,
+            onValueChange = { text = it },
+            Modifier.onExternalDrag(
+                onDragStart = { externalDragValue -> println("Dragged! ${externalDragValue.dragData}") },
+                onDragExit = { println("Dragged out!") },
+                onDrop = { externalDropValue ->
+                    val dragData = externalDropValue.dragData
+                    if (dragData is DragData.FilesList) {
+                        val filePaths = dragData.readFiles()
+                        println("Dropped! ${filePaths.firstOrNull()}")
+                        text = filePaths.firstOrNull() ?: ""
+                    }
+                },
+            ),
+        )
     }
 }
 
