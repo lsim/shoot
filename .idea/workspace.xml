@@ -4,14 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4380d867-d754-4952-8703-ad989bd7a158" name="Changes" comment="- Get rid of jvm version warning&#10;- Get tracker running">
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/comms/IPV8Wrapper.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/comms/ShootCommunity.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/Main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/Main.kt" afterDir="false" />
-    </list>
+    <list default="true" id="4380d867-d754-4952-8703-ad989bd7a158" name="Changes" comment="Add some ipv8 init code - and get logging to stdout working" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -54,7 +47,7 @@
     </option>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/kotlin-ipv8" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="ROOT_SYNC" value="DONT_SYNC" />
   </component>
   <component name="MarkdownSettingsMigration">
@@ -78,7 +71,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "master",
+    "git-widget-placeholder": "main",
     "jdk.selected.JAVA_MODULE": "liberica-17",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -86,11 +79,11 @@
     "project.structure.last.edited": "Project",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.0",
-    "settings.editor.selected.configurable": "preferences.language.Kotlin",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
-  <component name="RunManager" selected="Kotlin.MainKt">
+  <component name="RunManager" selected="Gradle.shoot2 [ktlintCheck]">
     <configuration name="shoot2 [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -188,11 +181,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Gradle.shoot2 [ktlintCheck]" />
         <item itemvalue="Kotlin.MainKt" />
         <item itemvalue="Gradle.shoot2 [test]" />
         <item itemvalue="Gradle.shoot2 [build]" />
         <item itemvalue="Gradle.shoot2 [clean]" />
-        <item itemvalue="Gradle.shoot2 [ktlintCheck]" />
       </list>
     </recent_temporary>
   </component>
@@ -207,7 +200,7 @@
       <workItem from="1694705284729" duration="6230000" />
       <workItem from="1694716414655" duration="831000" />
       <workItem from="1694717252339" duration="2344000" />
-      <workItem from="1694785511117" duration="6702000" />
+      <workItem from="1694785511117" duration="6859000" />
     </task>
     <task id="LOCAL-00001" summary="Upgrade gradle to 7.2">
       <option name="closed" value="true" />
@@ -241,7 +234,15 @@
       <option name="project" value="LOCAL" />
       <updated>1694787924124</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Add some ipv8 init code - and get logging to stdout working">
+      <option name="closed" value="true" />
+      <created>1694792283962</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1694792283962</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -263,7 +264,8 @@
     <MESSAGE value="Build now works - yay!&#10;&#10;Tests now fail - boo!" />
     <MESSAGE value="Build + test working - BOOYAAH" />
     <MESSAGE value="- Get rid of jvm version warning&#10;- Get tracker running" />
-    <option name="LAST_COMMIT_MESSAGE" value="- Get rid of jvm version warning&#10;- Get tracker running" />
+    <MESSAGE value="Add some ipv8 init code - and get logging to stdout working" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add some ipv8 init code - and get logging to stdout working" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

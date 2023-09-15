@@ -1,14 +1,14 @@
 package comms
 
+import com.squareup.sqldelight.db.SqlDriver
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver.Companion.IN_MEMORY
-import com.squareup.sqldelight.db.SqlDriver
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import nl.tudelft.ipv8.*
+import nl.tudelft.ipv8.* // ktlint-disable no-wildcard-imports
 import nl.tudelft.ipv8.attestation.trustchain.TrustChainCommunity
 import nl.tudelft.ipv8.attestation.trustchain.TrustChainSettings
 import nl.tudelft.ipv8.attestation.trustchain.store.TrustChainSQLiteStore
@@ -38,7 +38,7 @@ class IPV8Wrapper {
         val periodicSimilarity = PeriodicSimilarity.Factory()
         return OverlayConfiguration(
             DiscoveryCommunity.Factory(),
-            listOf(randomWalk, randomChurn, periodicSimilarity)
+            listOf(randomWalk, randomChurn, periodicSimilarity),
         )
     }
 
@@ -51,7 +51,7 @@ class IPV8Wrapper {
         val randomWalk = RandomWalk.Factory(timeout = 3.0, peers = 20)
         return OverlayConfiguration(
             TrustChainCommunity.Factory(settings, store),
-            listOf(randomWalk)
+            listOf(randomWalk),
         )
     }
 
@@ -59,7 +59,7 @@ class IPV8Wrapper {
         val randomWalk = RandomWalk.Factory(timeout = 3.0, peers = 20)
         return OverlayConfiguration(
             Overlay.Factory(ShootCommunity::class.java),
-            listOf(randomWalk)
+            listOf(randomWalk),
         )
     }
 
@@ -69,11 +69,14 @@ class IPV8Wrapper {
         val udpEndpoint = UdpEndpoint(8090, InetAddress.getByName("0.0.0.0"))
         val endpoint = EndpointAggregator(udpEndpoint, null)
 
-        val config = IPv8Configuration(overlays = listOf(
-            createDiscoveryCommunity(),
-            createTrustChainCommunity(),
-            createDemoCommunity()
-        ), walkerInterval = 1.0)
+        val config = IPv8Configuration(
+            overlays = listOf(
+                createDiscoveryCommunity(),
+                createTrustChainCommunity(),
+                createDemoCommunity(),
+            ),
+            walkerInterval = 1.0,
+        )
 
         val ipv8 = IPv8(endpoint, config, myPeer)
         ipv8.start()
@@ -101,15 +104,20 @@ class IPV8Wrapper {
             val lastRequest = peer.lastRequest
             val lastResponse = peer.lastResponse
 
-            val lastRequestStr = if (lastRequest != null)
-                "" + ((Date().time - lastRequest.time) / 1000.0).roundToInt() + " s" else "?"
+            val lastRequestStr = if (lastRequest != null) {
+                "" + ((Date().time - lastRequest.time) / 1000.0).roundToInt() + " s"
+            } else {
+                "?"
+            }
 
-            val lastResponseStr = if (lastResponse != null)
-                "" + ((Date().time - lastResponse.time) / 1000.0).roundToInt() + " s" else "?"
+            val lastResponseStr = if (lastResponse != null) {
+                "" + ((Date().time - lastResponse.time) / 1000.0).roundToInt() + " s"
+            } else {
+                "?"
+            }
 
             val avgPingStr = if (!avgPing.isNaN()) "" + (avgPing * 1000).roundToInt() + " ms" else "? ms"
-            logger.info("${peer.mid} (S: ${lastRequestStr}, R: ${lastResponseStr}, ${avgPingStr})")
+            logger.info("${peer.mid} (S: $lastRequestStr, R: $lastResponseStr, $avgPingStr)")
         }
     }
-
 }
