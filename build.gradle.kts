@@ -24,8 +24,12 @@ dependencies {
     // compose.desktop.currentOs should be used in launcher-sourceSet
     // (in a separate module for demo project and in testMain).
     // With compose.desktop.common you will also lose @Preview functionality
-    implementation(project(mapOf("path" to ":ipv8")))
+    implementation("io.github.oshai:kotlin-logging-jvm:5.1.0")
+    implementation("org.slf4j:slf4j-simple:2.0.3")
     implementation(compose.desktop.currentOs)
+    implementation("com.squareup.sqldelight:sqlite-driver:1.5.5")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    implementation(project(mapOf("path" to ":ipv8")))
 }
 
 compose.desktop {
@@ -37,5 +41,11 @@ compose.desktop {
             packageName = "shoot2"
             packageVersion = "1.0.0"
         }
+    }
+}
+
+tasks {
+    withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+        kotlinOptions.jvmTarget = "17"
     }
 }

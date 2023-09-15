@@ -4,13 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4380d867-d754-4952-8703-ad989bd7a158" name="Changes" comment="Build + test working - BOOYAAH">
-      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
+    <list default="true" id="4380d867-d754-4952-8703-ad989bd7a158" name="Changes" comment="- Get rid of jvm version warning&#10;- Get tracker running">
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/comms/IPV8Wrapper.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/comms/ShootCommunity.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kotlin-ipv8/ipv8/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/kotlin-ipv8/ipv8/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kotlin-ipv8/ipv8/src/test/java/nl/tudelft/ipv8/attestation/trustchain/TrustChainCommunityTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/kotlin-ipv8/ipv8/src/test/java/nl/tudelft/ipv8/attestation/trustchain/TrustChainCommunityTest.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kotlin-ipv8/tracker/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/kotlin-ipv8/tracker/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/settings.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/Main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/Main.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,6 +46,13 @@
       </state>
     </system>
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Kotlin Class" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/kotlin-ipv8" />
     <option name="ROOT_SYNC" value="DONT_SYNC" />
@@ -57,7 +64,9 @@
   &quot;associatedIndex&quot;: 4
 }</component>
   <component name="ProjectId" id="2VOHNdhpgE27nPubG5NaIqOHegi" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="autoscrollFromSource" value="true" />
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -70,6 +79,7 @@
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "WebServerToolWindowFactoryState": "false",
     "git-widget-placeholder": "master",
+    "jdk.selected.JAVA_MODULE": "liberica-17",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
@@ -80,7 +90,7 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
-  <component name="RunManager" selected="Gradle.shoot2 [test]">
+  <component name="RunManager" selected="Kotlin.MainKt">
     <configuration name="shoot2 [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -169,8 +179,16 @@
       <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
+    <configuration name="MainKt" type="JetRunConfigurationType" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="MainKt" />
+      <module name="shoot2.main" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Kotlin.MainKt" />
         <item itemvalue="Gradle.shoot2 [test]" />
         <item itemvalue="Gradle.shoot2 [build]" />
         <item itemvalue="Gradle.shoot2 [clean]" />
@@ -189,7 +207,7 @@
       <workItem from="1694705284729" duration="6230000" />
       <workItem from="1694716414655" duration="831000" />
       <workItem from="1694717252339" duration="2344000" />
-      <workItem from="1694785511117" duration="2290000" />
+      <workItem from="1694785511117" duration="6702000" />
     </task>
     <task id="LOCAL-00001" summary="Upgrade gradle to 7.2">
       <option name="closed" value="true" />
@@ -215,7 +233,15 @@
       <option name="project" value="LOCAL" />
       <updated>1694717208879</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="- Get rid of jvm version warning&#10;- Get tracker running">
+      <option name="closed" value="true" />
+      <created>1694787924124</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1694787924124</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -236,7 +262,8 @@
     <MESSAGE value="Upgrade gradle to 7.2" />
     <MESSAGE value="Build now works - yay!&#10;&#10;Tests now fail - boo!" />
     <MESSAGE value="Build + test working - BOOYAAH" />
-    <option name="LAST_COMMIT_MESSAGE" value="Build + test working - BOOYAAH" />
+    <MESSAGE value="- Get rid of jvm version warning&#10;- Get tracker running" />
+    <option name="LAST_COMMIT_MESSAGE" value="- Get rid of jvm version warning&#10;- Get tracker running" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
