@@ -55,7 +55,7 @@ class IPV8Wrapper {
         )
     }
 
-    private fun createDemoCommunity(): OverlayConfiguration<ShootCommunity> {
+    private fun createShootCommunity(): OverlayConfiguration<ShootCommunity> {
         val randomWalk = RandomWalk.Factory(timeout = 3.0, peers = 20)
         return OverlayConfiguration(
             Overlay.Factory(ShootCommunity::class.java),
@@ -73,7 +73,7 @@ class IPV8Wrapper {
             overlays = listOf(
                 createDiscoveryCommunity(),
                 createTrustChainCommunity(),
-                createDemoCommunity(),
+                createShootCommunity(),
             ),
             walkerInterval = 1.0,
         )
@@ -86,7 +86,7 @@ class IPV8Wrapper {
                 for ((_, overlay) in ipv8.overlays) {
                     printPeersInfo(overlay)
                 }
-                logger.info("===")
+                logger.info { "===" }
                 delay(5000)
             }
         }
@@ -98,7 +98,7 @@ class IPV8Wrapper {
 
     private fun printPeersInfo(overlay: Overlay) {
         val peers = overlay.getPeers()
-        logger.info(overlay::class.simpleName + ": ${peers.size} peers")
+        logger.info { overlay::class.simpleName + ": ${peers.size} peers" }
         for (peer in peers) {
             val avgPing = peer.getAveragePing()
             val lastRequest = peer.lastRequest
@@ -117,7 +117,7 @@ class IPV8Wrapper {
             }
 
             val avgPingStr = if (!avgPing.isNaN()) "" + (avgPing * 1000).roundToInt() + " ms" else "? ms"
-            logger.info("${peer.mid} (S: $lastRequestStr, R: $lastResponseStr, $avgPingStr)")
+            logger.info { "${peer.mid} (S: $lastRequestStr, R: $lastResponseStr, $avgPingStr)" }
         }
     }
 }
