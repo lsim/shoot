@@ -2,5 +2,10 @@
 <project version="4">
   <component name="KtlintProjectConfiguration">
     <formatOnSave>true</formatOnSave>
+    <disabledRules>
+      <list>
+        <option value="no-wildcard-imports" />
+      </list>
+    </disabledRules>
   </component>
 </project>
