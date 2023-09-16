@@ -1,90 +1,104 @@
+
+import androidx.compose.animation.animateColor
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.desktop.ui.tooling.preview.Preview
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.DragData
-import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.onExternalDrag
+import androidx.compose.ui.*
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import com.darkrockstudios.libraries.mpfilepicker.DirectoryPicker
 import comms.IPV8Wrapper
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.ini4j.Ini
-import org.ini4j.IniPreferences
-import java.io.File
-import java.util.prefs.Preferences
 
 private val scope = CoroutineScope(Dispatchers.Default)
 private val logger = KotlinLogging.logger {}
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 @Preview
-fun App() {
-    val prefs = ShootPreferences()
+fun AppPreview() {
+    val preferences = ShootPreferences(true)
+    App(IPV8Wrapper(preferences), preferences)
+}
 
-    var text by remember { mutableStateOf("Hello, World!") }
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun App(ipv8Wrapper: IPV8Wrapper, preferences: ShootPreferences) {
+    var outputDir by remember { mutableStateOf(preferences["outputDir", ""]) }
+    val droppedPaths = remember { mutableStateListOf<String>() }
+    var showDirPicker by remember { mutableStateOf(false) }
+    var indicatingGreen by remember { mutableStateOf(false) }
+    val color = updateTransition(indicatingGreen, label = "color")
+        .animateColor { state ->
+            if (state) Color.Green else Color.White
+        }
 
-    val ipv8 = IPV8Wrapper(prefs)
+    MaterialTheme {
+        Column(
+            Modifier
+                .fillMaxSize()
+                .onExternalDrag(
+                    onDragStart = { _ -> indicatingGreen = true },
+                    onDragExit = { indicatingGreen = false },
+                    onDrop = { externalDropValue ->
+                        val dragData = externalDropValue.dragData
+                        indicatingGreen = false
+                        if (dragData is DragData.FilesList) {
+                            val filePaths = dragData.readFiles()
+                            logger.info { "Dropped! ${filePaths.firstOrNull()}" }
+                            droppedPaths.clear()
+                            droppedPaths.addAll(filePaths)
+                        }
+                    },
+
+                )
+                .background(color.value),
+        ) {
+            Row(horizontalArrangement = Arrangement.SpaceBetween) {
+                TextField(
+                    value = droppedPaths.joinToString("\n"),
+                    onValueChange = { outputDir = it },
+                    Modifier.weight(0.5f),
+                )
+                Spacer(Modifier.weight(0.1f))
+                Button(
+                    onClick = { showDirPicker = true },
+                ) {
+                    Text("Pick output folder")
+                }
+            }
+            DirectoryPicker(showDirPicker) { path ->
+                showDirPicker = false
+                if (path != null) outputDir = path
+            }
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                Text(
+                    text = "Drop files anywhere!",
+                    Modifier.padding(5.dp),
+                )
+            }
+        }
+    }
+}
+
+fun main() = application {
+    val preferences = ShootPreferences()
+
+    val ipv8 = IPV8Wrapper(preferences)
     val ipv8Job = scope.launch {
         logger.info { "ipv8 starting..." }
         ipv8.run()
         logger.info { "ipv8 finished" }
     }
 
-    MaterialTheme {
-//        Button(onClick = {
-//            text = "Hello, Desktop!"
-//        }) {
-//            Text(text)
-//        }
-        OutlinedTextField(
-            value = text,
-            onValueChange = { text = it },
-            Modifier.onExternalDrag(
-                onDragStart = { externalDragValue -> logger.info { "Dragged! ${externalDragValue.dragData}" } },
-                onDragExit = { logger.info { "Dragged out!" } },
-                onDrop = { externalDropValue ->
-                    val dragData = externalDropValue.dragData
-                    if (dragData is DragData.FilesList) {
-                        val filePaths = dragData.readFiles()
-                        logger.info { "Dropped! ${filePaths.firstOrNull()}" }
-                        text = filePaths.firstOrNull() ?: ""
-                    }
-                },
-            ),
-        )
-    }
-}
-
-class ShootPreferences {
-    val preferencesFile = File("shoot.ini")
-    val ini: Ini
-    val preferences: Preferences
-    init {
-        if (!preferencesFile.exists()) {
-            preferencesFile.createNewFile()
-        }
-        logger.info { "Loading preferences from ${preferencesFile.absolutePath}" }
-        ini = Ini(preferencesFile)
-        preferences = IniPreferences(ini).node("shoot")
-    }
-
-    operator fun get(key: String, def: String): String {
-        return preferences[key, def]
-    }
-
-    operator fun set(key: String, value: String) {
-        preferences.put(key, value)
-        preferences.sync()
-        ini.store()
-    }
-}
-fun main() = application {
     Window(onCloseRequest = ::exitApplication) {
-        App()
+        App(ipv8, preferences)
     }
 }

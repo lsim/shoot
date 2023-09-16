@@ -9,7 +9,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import nl.tudelft.ipv8.* // ktlint-disable no-wildcard-imports
+import nl.tudelft.ipv8.*
 import nl.tudelft.ipv8.attestation.trustchain.TrustChainCommunity
 import nl.tudelft.ipv8.attestation.trustchain.TrustChainSettings
 import nl.tudelft.ipv8.attestation.trustchain.store.TrustChainSQLiteStore
@@ -33,7 +33,7 @@ class IPV8Wrapper(private val preferences: ShootPreferences) {
     private val logger = KotlinLogging.logger {}
 
     fun run() {
-        startIpv8()
+        if (!preferences.testing) startIpv8()
     }
 
     private fun createDiscoveryCommunity(): OverlayConfiguration<DiscoveryCommunity> {

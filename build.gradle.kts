@@ -1,3 +1,4 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
@@ -6,6 +7,7 @@ plugins {
     id("org.jetbrains.dokka") version "1.9.0"
     id("org.jlleitschuh.gradle.ktlint") version "11.5.1"
     id("com.squareup.sqldelight") version "1.5.5"
+    id("com.github.johnrengelman.shadow") version "5.1.0"
 }
 
 group = "averysimonsen.los"
@@ -31,6 +33,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation(project(mapOf("path" to ":ipv8")))
     implementation("org.ini4j:ini4j:0.5.4")
+    implementation("com.darkrockstudios:mpfilepicker:2.1.0")
 }
 
 compose.desktop {
@@ -39,9 +42,15 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "shoot2"
+            packageName = "shoot"
             packageVersion = "1.0.0"
         }
+    }
+}
+
+tasks.withType<ShadowJar>() {
+    manifest {
+        attributes["Main-Class"] = "MainKt"
     }
 }
 
