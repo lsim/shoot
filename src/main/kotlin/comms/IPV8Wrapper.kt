@@ -22,6 +22,7 @@ import nl.tudelft.ipv8.peerdiscovery.strategy.PeriodicSimilarity
 import nl.tudelft.ipv8.peerdiscovery.strategy.RandomChurn
 import nl.tudelft.ipv8.peerdiscovery.strategy.RandomWalk
 import nl.tudelft.ipv8.sqldelight.Database
+import nl.tudelft.ipv8.util.hexToBytes
 import nl.tudelft.ipv8.util.toHex
 import java.net.InetAddress
 import java.util.*
@@ -68,7 +69,7 @@ class IPV8Wrapper(private val preferences: ShootPreferences) {
 
     // Get key from ini file or generate/persist a new one
     private fun getKey(): PrivateKey {
-        var keyBytes: ByteArray = preferences["privateKey", ""].toByteArray()
+        var keyBytes: ByteArray = preferences["privateKey", ""].hexToBytes()
         if (keyBytes.isEmpty()) {
             logger.info { "Generating/saving new private key" }
             val key = JavaCryptoProvider.generateKey()
