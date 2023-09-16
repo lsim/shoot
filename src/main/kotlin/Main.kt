@@ -12,6 +12,10 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.ini4j.Ini
+import org.ini4j.IniPreferences
+import java.io.File
+import java.util.prefs.Preferences
 
 private val scope = CoroutineScope(Dispatchers.Default)
 private val logger = KotlinLogging.logger {}
@@ -20,9 +24,11 @@ private val logger = KotlinLogging.logger {}
 @Composable
 @Preview
 fun App() {
+    val prefs = ShootPreferences()
+
     var text by remember { mutableStateOf("Hello, World!") }
 
-    val ipv8 = IPV8Wrapper()
+    val ipv8 = IPV8Wrapper(prefs)
     val ipv8Job = scope.launch {
         logger.info { "ipv8 starting..." }
         ipv8.run()
@@ -30,11 +36,11 @@ fun App() {
     }
 
     MaterialTheme {
-        Button(onClick = {
-            text = "Hello, Desktop!"
-        }) {
-            Text(text)
-        }
+//        Button(onClick = {
+//            text = "Hello, Desktop!"
+//        }) {
+//            Text(text)
+//        }
         OutlinedTextField(
             value = text,
             onValueChange = { text = it },
@@ -54,6 +60,29 @@ fun App() {
     }
 }
 
+class ShootPreferences {
+    val preferencesFile = File("shoot.ini")
+    val ini: Ini
+    val preferences: Preferences
+    init {
+        if (!preferencesFile.exists()) {
+            preferencesFile.createNewFile()
+        }
+        logger.info { "Loading preferences from ${preferencesFile.absolutePath}" }
+        ini = Ini(preferencesFile)
+        preferences = IniPreferences(ini).node("shoot")
+    }
+
+    operator fun get(key: String, def: String): String {
+        return preferences[key, def]
+    }
+
+    operator fun set(key: String, value: String) {
+        preferences.put(key, value)
+        preferences.sync()
+        ini.store()
+    }
+}
 fun main() = application {
     Window(onCloseRequest = ::exitApplication) {
         App()

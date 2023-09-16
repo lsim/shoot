@@ -1,5 +1,6 @@
 package comms
 
+import ShootPreferences
 import com.squareup.sqldelight.db.SqlDriver
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver.Companion.IN_MEMORY
@@ -13,6 +14,7 @@ import nl.tudelft.ipv8.attestation.trustchain.TrustChainCommunity
 import nl.tudelft.ipv8.attestation.trustchain.TrustChainSettings
 import nl.tudelft.ipv8.attestation.trustchain.store.TrustChainSQLiteStore
 import nl.tudelft.ipv8.keyvault.JavaCryptoProvider
+import nl.tudelft.ipv8.keyvault.PrivateKey
 import nl.tudelft.ipv8.messaging.EndpointAggregator
 import nl.tudelft.ipv8.messaging.udp.UdpEndpoint
 import nl.tudelft.ipv8.peerdiscovery.DiscoveryCommunity
@@ -20,11 +22,12 @@ import nl.tudelft.ipv8.peerdiscovery.strategy.PeriodicSimilarity
 import nl.tudelft.ipv8.peerdiscovery.strategy.RandomChurn
 import nl.tudelft.ipv8.peerdiscovery.strategy.RandomWalk
 import nl.tudelft.ipv8.sqldelight.Database
+import nl.tudelft.ipv8.util.toHex
 import java.net.InetAddress
 import java.util.*
 import kotlin.math.roundToInt
 
-class IPV8Wrapper {
+class IPV8Wrapper(private val preferences: ShootPreferences) {
     private val scope = CoroutineScope(Dispatchers.Default)
     private val logger = KotlinLogging.logger {}
 
@@ -63,8 +66,22 @@ class IPV8Wrapper {
         )
     }
 
+    // Get key from ini file or generate/persist a new one
+    private fun getKey(): PrivateKey {
+        var keyBytes: ByteArray = preferences["privateKey", ""].toByteArray()
+        if (keyBytes.isEmpty()) {
+            logger.info { "Generating/saving new private key" }
+            val key = JavaCryptoProvider.generateKey()
+            keyBytes = key.keyToBin()
+            preferences["privateKey"] = keyBytes.toHex()
+        } else {
+            logger.info { "Using existing private key" }
+        }
+        return JavaCryptoProvider.keyFromPrivateBin(keyBytes)
+    }
+
     private fun startIpv8() {
-        val myKey = JavaCryptoProvider.generateKey()
+        val myKey = getKey()
         val myPeer = Peer(myKey)
         val udpEndpoint = UdpEndpoint(8090, InetAddress.getByName("0.0.0.0"))
         val endpoint = EndpointAggregator(udpEndpoint, null)

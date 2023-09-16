@@ -30,6 +30,7 @@ dependencies {
     implementation("com.squareup.sqldelight:sqlite-driver:1.5.5")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation(project(mapOf("path" to ":ipv8")))
+    implementation("org.ini4j:ini4j:0.5.4")
 }
 
 compose.desktop {
