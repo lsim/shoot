@@ -4,6 +4,7 @@ import androidx.compose.animation.core.updateTransition
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
@@ -13,9 +14,13 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import com.darkrockstudios.libraries.mpfilepicker.DirectoryPicker
 import comms.IPV8Wrapper
+import comms.ShootCommunity
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.launch
 
 private val scope = CoroutineScope(Dispatchers.Default)
@@ -30,7 +35,7 @@ fun AppPreview() {
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun App(ipv8Wrapper: IPV8Wrapper, preferences: ShootPreferences) {
+fun App(ipv8: IPV8Wrapper, preferences: ShootPreferences) {
     var outputDir by remember { mutableStateOf(preferences["outputDir", ""]) }
     val droppedPaths = remember { mutableStateListOf<String>() }
     var showDirPicker by remember { mutableStateOf(false) }
@@ -39,6 +44,29 @@ fun App(ipv8Wrapper: IPV8Wrapper, preferences: ShootPreferences) {
         .animateColor { state ->
             if (state) Color.Green else Color.White
         }
+    val logLines = remember { mutableStateListOf<String>() }
+
+    var latestCommunity: ShootCommunity? by remember { mutableStateOf(null) }
+
+    scope.launch {
+        ipv8.shootCommunityFlow.transform { community ->
+            run {
+                latestCommunity = community
+                emitAll(community.greetingFlow)
+            }
+        }
+            .transform { peers ->
+                emit("Peers now: ${peers.size}")
+                for (peer in peers) {
+                    emit("  ${peer.name} (${peer.id})")
+                }
+            }
+            .flowOn(Dispatchers.Main)
+            .collect { line ->
+                logLines.add(line)
+                if (logLines.size > 100) logLines.removeFirst()
+            }
+    }
 
     MaterialTheme {
         Column(
@@ -55,9 +83,9 @@ fun App(ipv8Wrapper: IPV8Wrapper, preferences: ShootPreferences) {
                             logger.info { "Dropped! ${filePaths.firstOrNull()}" }
                             droppedPaths.clear()
                             droppedPaths.addAll(filePaths)
+                            logLines.add("Dropped ${filePaths.size} files")
                         }
                     },
-
                 )
                 .background(color.value),
         ) {
@@ -69,7 +97,10 @@ fun App(ipv8Wrapper: IPV8Wrapper, preferences: ShootPreferences) {
                 )
                 Spacer(Modifier.weight(0.1f))
                 Button(
-                    onClick = { showDirPicker = true },
+                    onClick = {
+                        // showDirPicker = true
+                        latestCommunity?.broadcastGreeting()
+                    },
                 ) {
                     Text("Pick output folder")
                 }
@@ -83,6 +114,13 @@ fun App(ipv8Wrapper: IPV8Wrapper, preferences: ShootPreferences) {
                     text = "Drop files anywhere!",
                     Modifier.padding(5.dp),
                 )
+            }
+            Row(Modifier.fillMaxHeight()) {
+                LazyColumn {
+                    items(logLines.size) { index ->
+                        Text(logLines[index])
+                    }
+                }
             }
         }
     }

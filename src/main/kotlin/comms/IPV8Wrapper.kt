@@ -8,6 +8,9 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import nl.tudelft.ipv8.*
 import nl.tudelft.ipv8.attestation.trustchain.TrustChainCommunity
@@ -22,7 +25,6 @@ import nl.tudelft.ipv8.peerdiscovery.strategy.PeriodicSimilarity
 import nl.tudelft.ipv8.peerdiscovery.strategy.RandomChurn
 import nl.tudelft.ipv8.peerdiscovery.strategy.RandomWalk
 import nl.tudelft.ipv8.sqldelight.Database
-import nl.tudelft.ipv8.util.hexToBytes
 import nl.tudelft.ipv8.util.toHex
 import java.net.InetAddress
 import java.util.*
@@ -59,17 +61,20 @@ class IPV8Wrapper(private val preferences: ShootPreferences) {
         )
     }
 
+    private val shootCommunityFactory = ShootCommunityFactory(preferences)
+    val shootCommunityFlow: Flow<ShootCommunity> = shootCommunityFactory.communityFlow
+
     private fun createShootCommunity(): OverlayConfiguration<ShootCommunity> {
         val randomWalk = RandomWalk.Factory(timeout = 3.0, peers = 20)
         return OverlayConfiguration(
-            Overlay.Factory(ShootCommunity::class.java),
+            shootCommunityFactory,
             listOf(randomWalk),
         )
     }
 
     // Get key from ini file or generate/persist a new one
     private fun getKey(): PrivateKey {
-        var keyBytes: ByteArray = preferences["privateKey", ""].hexToBytes()
+        var keyBytes: ByteArray = ByteArray(0) //  preferences["privateKey", ""].hexToBytes()
         if (keyBytes.isEmpty()) {
             logger.info { "Generating/saving new private key" }
             val key = JavaCryptoProvider.generateKey()
@@ -136,6 +141,16 @@ class IPV8Wrapper(private val preferences: ShootPreferences) {
 
             val avgPingStr = if (!avgPing.isNaN()) "" + (avgPing * 1000).roundToInt() + " ms" else "? ms"
             logger.info { "${peer.mid} (S: $lastRequestStr, R: $lastResponseStr, $avgPingStr)" }
+        }
+    }
+
+    class ShootCommunityFactory(private val preferences: ShootPreferences) : Overlay.Factory<ShootCommunity>(ShootCommunity::class.java) {
+        private val sharedFlow = MutableSharedFlow<ShootCommunity>(3)
+        val communityFlow = sharedFlow.asSharedFlow()
+        override fun create(): ShootCommunity {
+            val community = ShootCommunity(preferences)
+            sharedFlow.tryEmit(community)
+            return community
         }
     }
 }
