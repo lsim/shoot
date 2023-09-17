@@ -152,11 +152,12 @@ class IPV8Wrapper(private val preferences: ShootPreferences) {
     class ShootCommunityFactory(private val preferences: ShootPreferences) : Overlay.Factory<ShootCommunity>(ShootCommunity::class.java) {
         private val scope = CoroutineScope(Dispatchers.Default)
         private val logger = KotlinLogging.logger {}
-        private val sharedFlow = MutableSharedFlow<ShootCommunity>()
+        private val sharedFlow = MutableSharedFlow<ShootCommunity>(10)
         val communityFlow = sharedFlow.asSharedFlow()
         override fun create(): ShootCommunity {
             val community = ShootCommunity(preferences)
             scope.launch {
+                logger.info { "Emitting community" }
                 sharedFlow.emit(community)
             }
             return community

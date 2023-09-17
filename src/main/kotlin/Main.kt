@@ -25,6 +25,7 @@ import kotlinx.coroutines.launch
 import java.util.concurrent.CompletableFuture
 
 private val scope = CoroutineScope(Dispatchers.Default)
+private val uiScope = CoroutineScope(Dispatchers.Main)
 private val logger = KotlinLogging.logger {}
 
 @Composable
@@ -48,16 +49,23 @@ fun App(ipv8: IPV8Wrapper, preferences: ShootPreferences) {
     val logLines = remember { mutableStateListOf<String>() }
 
     val future = remember { mutableStateOf(CompletableFuture<ShootCommunity>()) }
+    val communityBinding = remember { mutableStateOf<ShootCommunity?>(null) }
 
-    scope.launch {
+//    future.value.thenAccept { community ->
+//        logger.info { "Got community: ${community.serviceId}" }
+//    }
+
+    uiScope.launch {
+        logger.info { "Waiting for community on ui thread" }
         ipv8.shootCommunityFlow
             .take(1)
             .collect { community ->
+                logger.info { "Assigning community: ${community.serviceId}" }
                 future.value.complete(community)
                 logger.info { "Got community: ${community.serviceId}" }
             }
     }
-    scope.launch {
+    uiScope.launch {
         ipv8.shootCommunityFlow.transform { community ->
             emitAll(community.greetingFlow)
         }
@@ -103,7 +111,7 @@ fun App(ipv8: IPV8Wrapper, preferences: ShootPreferences) {
                 Spacer(Modifier.weight(0.1f))
                 Button(
                     onClick = {
-                        // showDirPicker = true
+                        showDirPicker = true
                         future.value.thenAccept { community ->
                             logger.info { "broadcasting to community" }
                             community.broadcastGreeting()
