@@ -1,0 +1,4 @@
+[submodule "kotlin-ipv8"]
+	path = kotlin-ipv8
+	url = git@github.com:lsim/kotlin-ipv8.git
+	branch = los-shoot
