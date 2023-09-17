@@ -19,10 +19,10 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.launch
-import nl.tudelft.ipv8.util.toHex
+import java.util.concurrent.CompletableFuture
 
 private val scope = CoroutineScope(Dispatchers.Default)
 private val logger = KotlinLogging.logger {}
@@ -47,14 +47,19 @@ fun App(ipv8: IPV8Wrapper, preferences: ShootPreferences) {
         }
     val logLines = remember { mutableStateListOf<String>() }
 
-    var latestCommunity: ShootCommunity? by remember { mutableStateOf(null) }
+    val future = remember { mutableStateOf(CompletableFuture<ShootCommunity>()) }
 
     scope.launch {
-        ipv8.shootCommunityFlow.transform { community ->
-            run {
-                latestCommunity = community
-                emitAll(community.greetingFlow)
+        ipv8.shootCommunityFlow
+            .take(1)
+            .collect { community ->
+                future.value.complete(community)
+                logger.info { "Got community: ${community.serviceId}" }
             }
+    }
+    scope.launch {
+        ipv8.shootCommunityFlow.transform { community ->
+            emitAll(community.greetingFlow)
         }
             .transform { peers ->
                 emit("Peers now: ${peers.size}")
@@ -62,7 +67,6 @@ fun App(ipv8: IPV8Wrapper, preferences: ShootPreferences) {
                     emit("  ${peer.name} (${peer.id})")
                 }
             }
-            .flowOn(Dispatchers.Main)
             .collect { line ->
                 logLines.add(line)
                 if (logLines.size > 100) logLines.removeFirst()
@@ -100,7 +104,10 @@ fun App(ipv8: IPV8Wrapper, preferences: ShootPreferences) {
                 Button(
                     onClick = {
                         // showDirPicker = true
-                        latestCommunity?.broadcastGreeting()
+                        future.value.thenAccept { community ->
+                            logger.info { "broadcasting to community" }
+                            community.broadcastGreeting()
+                        }
                     },
                 ) {
                     Text("Pick output folder")
@@ -126,8 +133,14 @@ fun App(ipv8: IPV8Wrapper, preferences: ShootPreferences) {
         }
     }
 }
-
+var alreadyRunning = false
 fun main() = application {
+    if (alreadyRunning) {
+        logger.info { "Already running!" }
+    } else {
+        logger.info { "First run" }
+        alreadyRunning = true
+    }
     val preferences = ShootPreferences()
 
     val ipv8 = IPV8Wrapper(preferences)
@@ -137,14 +150,7 @@ fun main() = application {
         logger.info { "ipv8 finished" }
     }
 
-    var peerId by remember { mutableStateOf("") }
-
-    ipv8.myPeer.thenAccept { peer ->
-        logger.info { "This peer has public key ${peer.publicKey.keyToBin().toHex()}" }
-        peerId = peer.mid
-    }
-
-    Window(onCloseRequest = ::exitApplication, title = "Shoot ($peerId)") {
+    Window(onCloseRequest = ::exitApplication, title = "Shoot") {
         App(ipv8, preferences)
     }
 }

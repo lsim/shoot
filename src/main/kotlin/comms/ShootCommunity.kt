@@ -33,6 +33,7 @@ class ShootCommunity(private val preferences: ShootPreferences) : Community() {
     }
 
     fun broadcastGreeting() {
+        logger.info { "Broadcasting greetings" }
         for (peer in getPeers()) {
             val packet = serializePacket(GreetingMessage.MESSAGE_ID, GreetingMessage(preferences.user))
             logger.info { "Sending greeting to ${peer.mid} @ ${peer.address}: ${preferences.user}" }
