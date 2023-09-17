@@ -42,6 +42,7 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            modules("java.instrument", "java.naming", "java.prefs", "java.sql", "jdk.unsupported")
             packageName = "shoot"
             packageVersion = "1.0.0"
         }
