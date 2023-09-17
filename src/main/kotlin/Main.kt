@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.launch
+import nl.tudelft.ipv8.util.toHex
 
 private val scope = CoroutineScope(Dispatchers.Default)
 private val logger = KotlinLogging.logger {}
@@ -130,13 +131,20 @@ fun main() = application {
     val preferences = ShootPreferences()
 
     val ipv8 = IPV8Wrapper(preferences)
-    val ipv8Job = scope.launch {
+    scope.launch {
         logger.info { "ipv8 starting..." }
         ipv8.run()
         logger.info { "ipv8 finished" }
     }
 
-    Window(onCloseRequest = ::exitApplication) {
+    var peerId by remember { mutableStateOf("") }
+
+    ipv8.myPeer.thenAccept { peer ->
+        logger.info { "This peer has public key ${peer.publicKey.keyToBin().toHex()}" }
+        peerId = peer.mid
+    }
+
+    Window(onCloseRequest = ::exitApplication, title = "Shoot ($peerId)") {
         App(ipv8, preferences)
     }
 }

@@ -25,9 +25,11 @@ import nl.tudelft.ipv8.peerdiscovery.strategy.PeriodicSimilarity
 import nl.tudelft.ipv8.peerdiscovery.strategy.RandomChurn
 import nl.tudelft.ipv8.peerdiscovery.strategy.RandomWalk
 import nl.tudelft.ipv8.sqldelight.Database
+import nl.tudelft.ipv8.util.hexToBytes
 import nl.tudelft.ipv8.util.toHex
 import java.net.InetAddress
 import java.util.*
+import java.util.concurrent.CompletableFuture
 import kotlin.math.roundToInt
 
 class IPV8Wrapper(private val preferences: ShootPreferences) {
@@ -64,6 +66,8 @@ class IPV8Wrapper(private val preferences: ShootPreferences) {
     private val shootCommunityFactory = ShootCommunityFactory(preferences)
     val shootCommunityFlow: Flow<ShootCommunity> = shootCommunityFactory.communityFlow
 
+    val myPeer: CompletableFuture<Peer> = CompletableFuture()
+
     private fun createShootCommunity(): OverlayConfiguration<ShootCommunity> {
         val randomWalk = RandomWalk.Factory(timeout = 3.0, peers = 20)
         return OverlayConfiguration(
@@ -74,7 +78,7 @@ class IPV8Wrapper(private val preferences: ShootPreferences) {
 
     // Get key from ini file or generate/persist a new one
     private fun getKey(): PrivateKey {
-        var keyBytes: ByteArray = ByteArray(0) //  preferences["privateKey", ""].hexToBytes()
+        var keyBytes: ByteArray = preferences["privateKey", ""].hexToBytes()
         if (keyBytes.isEmpty()) {
             logger.info { "Generating/saving new private key" }
             val key = JavaCryptoProvider.generateKey()
@@ -89,6 +93,7 @@ class IPV8Wrapper(private val preferences: ShootPreferences) {
     private fun startIpv8() {
         val myKey = getKey()
         val myPeer = Peer(myKey)
+        this.myPeer.complete(myPeer)
         val udpEndpoint = UdpEndpoint(8090, InetAddress.getByName("0.0.0.0"))
         val endpoint = EndpointAggregator(udpEndpoint, null)
 
@@ -145,11 +150,15 @@ class IPV8Wrapper(private val preferences: ShootPreferences) {
     }
 
     class ShootCommunityFactory(private val preferences: ShootPreferences) : Overlay.Factory<ShootCommunity>(ShootCommunity::class.java) {
-        private val sharedFlow = MutableSharedFlow<ShootCommunity>(3)
+        private val scope = CoroutineScope(Dispatchers.Default)
+        private val logger = KotlinLogging.logger {}
+        private val sharedFlow = MutableSharedFlow<ShootCommunity>()
         val communityFlow = sharedFlow.asSharedFlow()
         override fun create(): ShootCommunity {
             val community = ShootCommunity(preferences)
-            sharedFlow.tryEmit(community)
+            scope.launch {
+                sharedFlow.emit(community)
+            }
             return community
         }
     }
