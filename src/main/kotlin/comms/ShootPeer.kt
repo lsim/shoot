@@ -17,9 +17,7 @@ class ShootPeer(val name: String, val peer: Peer, private val community: ShootCo
     }
 
     override fun hashCode(): Int {
-        var result = name.hashCode()
-        result = 31 * result + peer.hashCode()
-        return result
+        return peer.mid.hashCode()
     }
 
     fun sendFile(path: String) {

@@ -21,9 +21,9 @@ class ShootCommunity(private val preferences: ShootPreferences) : Community() {
     private val greetingStream = MutableSharedFlow<ShootPeer>(10)
     val greetingFlow get() = greetingStream
         .scan(emptySet<ShootPeer>()) { acc, latest ->
-            if (!acc.contains(latest)) {
-                logger.info { "New peer: ${latest.peer.mid}" }
-                sendShootGreetingRequest(latest.peer)
+            if (latest !in acc) {
+                logger.info { "New peer: ${latest.peer.mid} acc.size ${acc.size}" }
+//                sendShootGreetingRequest(latest.peer)
             } else {
                 logger.info { "Known peer: ${latest.peer.mid}" }
             }
