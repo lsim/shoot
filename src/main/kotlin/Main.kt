@@ -14,15 +14,11 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import com.darkrockstudios.libraries.mpfilepicker.DirectoryPicker
 import comms.IPV8Wrapper
-import comms.ShootCommunity
+import comms.ShootPeer
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.launch
-import java.util.concurrent.CompletableFuture
 
 private val scope = CoroutineScope(Dispatchers.Default)
 private val uiScope = CoroutineScope(Dispatchers.Main)
@@ -48,36 +44,20 @@ fun App(ipv8: IPV8Wrapper, preferences: ShootPreferences) {
         }
     val logLines = remember { mutableStateListOf<String>() }
 
-    val future = remember { mutableStateOf(CompletableFuture<ShootCommunity>()) }
-    val communityBinding = remember { mutableStateOf<ShootCommunity?>(null) }
+    val currentPeers = remember { mutableStateListOf<ShootPeer>() }
+
+//    val future = remember { mutableStateOf(CompletableFuture<ShootCommunity>()) }
+//    val communityBinding = remember { mutableStateOf<ShootCommunity?>(null) }
 
 //    future.value.thenAccept { community ->
 //        logger.info { "Got community: ${community.serviceId}" }
 //    }
 
     uiScope.launch {
-        logger.info { "Waiting for community on ui thread" }
-        ipv8.shootCommunityFlow
-            .take(1)
-            .collect { community ->
-                logger.info { "Assigning community: ${community.serviceId}" }
-                future.value.complete(community)
-                logger.info { "Got community: ${community.serviceId}" }
-            }
-    }
-    uiScope.launch {
-        ipv8.shootCommunityFlow.transform { community ->
-            emitAll(community.greetingFlow)
-        }
-            .transform { peers ->
-                emit("Peers now: ${peers.size}")
-                for (peer in peers) {
-                    emit("  ${peer.name} (${peer.id})")
-                }
-            }
-            .collect { line ->
-                logLines.add(line)
-                if (logLines.size > 100) logLines.removeFirst()
+        ipv8.shootPeerFlow
+            .collect { peers ->
+                currentPeers.clear()
+                currentPeers.addAll(peers)
             }
     }
 
@@ -94,28 +74,26 @@ fun App(ipv8: IPV8Wrapper, preferences: ShootPreferences) {
                         if (dragData is DragData.FilesList) {
                             val filePaths = dragData.readFiles()
                             logger.info { "Dropped! ${filePaths.firstOrNull()}" }
-                            droppedPaths.clear()
-                            droppedPaths.addAll(filePaths)
                             logLines.add("Dropped ${filePaths.size} files")
+                            for (path in filePaths) {
+                                val peer = currentPeers.firstOrNull()
+                                if (peer != null) {
+                                    logLines.add("Sending $path to $peer")
+                                    peer.sendFile(path)
+                                } else {
+                                    logLines.add("No peers to send $path to")
+                                }
+                            }
                         }
                     },
                 )
                 .background(color.value),
         ) {
             Row(horizontalArrangement = Arrangement.SpaceBetween) {
-                TextField(
-                    value = droppedPaths.joinToString("\n"),
-                    onValueChange = { outputDir = it },
-                    Modifier.weight(0.5f),
-                )
                 Spacer(Modifier.weight(0.1f))
                 Button(
                     onClick = {
                         showDirPicker = true
-                        future.value.thenAccept { community ->
-                            logger.info { "broadcasting to community" }
-                            community.broadcastGreeting()
-                        }
                     },
                 ) {
                     Text("Pick output folder")
@@ -133,8 +111,8 @@ fun App(ipv8: IPV8Wrapper, preferences: ShootPreferences) {
             }
             Row(Modifier.fillMaxHeight()) {
                 LazyColumn {
-                    items(logLines.size) { index ->
-                        Text(logLines[index])
+                    items(currentPeers.size) { index ->
+                        Text("${currentPeers[index].name} (${currentPeers[index].peer})")
                     }
                 }
             }

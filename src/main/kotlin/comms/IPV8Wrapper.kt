@@ -5,13 +5,11 @@ import com.squareup.sqldelight.db.SqlDriver
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver.Companion.IN_MEMORY
 import io.github.oshai.kotlinlogging.KotlinLogging
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.flatMapLatest
 import nl.tudelft.ipv8.*
 import nl.tudelft.ipv8.attestation.trustchain.TrustChainCommunity
 import nl.tudelft.ipv8.attestation.trustchain.TrustChainSettings
@@ -65,6 +63,10 @@ class IPV8Wrapper(private val preferences: ShootPreferences) {
 
     private val shootCommunityFactory = ShootCommunityFactory(preferences)
     val shootCommunityFlow: Flow<ShootCommunity> = shootCommunityFactory.communityFlow
+
+    // Flow of peer sets - using kotlin equivalent of rx.net switch operator: flatMapLatest
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val shootPeerFlow: Flow<Set<ShootPeer>> = shootCommunityFlow.flatMapLatest { it.greetingFlow }
 
     val myPeer: CompletableFuture<Peer> = CompletableFuture()
 
