@@ -4,9 +4,22 @@ import nl.tudelft.ipv8.Peer
 import nl.tudelft.ipv8.util.sha1
 import java.io.File
 
-class ShootPeer(val name: String, val peer: Peer, val community: ShootCommunity) {
+class ShootPeer(val name: String, val peer: Peer, private val community: ShootCommunity) {
     override fun toString(): String {
         return "ShootPeer(name='$name', id='$peer')"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return when (other) {
+            is ShootPeer -> peer.mid == other.peer.mid
+            else -> false
+        }
+    }
+
+    override fun hashCode(): Int {
+        var result = name.hashCode()
+        result = 31 * result + peer.hashCode()
+        return result
     }
 
     fun sendFile(path: String) {

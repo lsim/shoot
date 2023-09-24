@@ -5,12 +5,12 @@ import comms.messages.GreetingMessageRequest
 import comms.messages.GreetingMessageResponse
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.launch
 import nl.tudelft.ipv8.Community
 import nl.tudelft.ipv8.Peer
 import nl.tudelft.ipv8.messaging.Packet
-import nl.tudelft.ipv8.messaging.payload.IntroductionResponsePayload
 
 class ShootCommunity(private val preferences: ShootPreferences) : Community() {
     private val logger = KotlinLogging.logger {}
@@ -19,7 +19,11 @@ class ShootCommunity(private val preferences: ShootPreferences) : Community() {
 
     private val greetingStream = MutableSharedFlow<ShootPeer>(10)
     val greetingFlow get() = greetingStream
-        .scan(emptySet<ShootPeer>()) { acc, latest -> acc.plus(latest) }
+        .scan(emptySet<ShootPeer>()) { acc, latest ->
+            if (!acc.contains(latest)) sendShootGreetingRequest(latest.peer)
+            acc.plus(latest)
+        }
+        .distinctUntilChanged()
 
     init {
         // IPV8 offers a file transfer protocol - let's enable that
@@ -77,12 +81,12 @@ class ShootCommunity(private val preferences: ShootPreferences) : Community() {
         send(peer.address, packet)
     }
 
-    // For every peer that we are introduced to, send a community-specific greeting
-    override fun onIntroductionResponse(
-        peer: Peer,
-        payload: IntroductionResponsePayload,
-    ) {
-        super.onIntroductionResponse(peer, payload)
-        sendShootGreetingRequest(peer)
-    }
+//    // For every peer that we are introduced to, send a community-specific greeting
+//    override fun onIntroductionResponse(
+//        peer: Peer,
+//        payload: IntroductionResponsePayload,
+//    ) {
+//        super.onIntroductionResponse(peer, payload)
+//        sendShootGreetingRequest(peer)
+//    }
 }
