@@ -91,9 +91,9 @@ class ShootCommunity(private val preferences: ShootPreferences) : Community() {
         peer: Peer,
         payload: IntroductionResponsePayload,
     ) {
-        super.onIntroductionResponse(peer, payload)
         if (peer.mid !in network.verifiedPeers.map { it.mid }) {
             sendShootGreetingRequest(peer)
         }
+        super.onIntroductionResponse(peer, payload)
     }
 }
