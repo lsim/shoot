@@ -11,6 +11,7 @@ import kotlinx.coroutines.launch
 import nl.tudelft.ipv8.Community
 import nl.tudelft.ipv8.Peer
 import nl.tudelft.ipv8.messaging.Packet
+import nl.tudelft.ipv8.messaging.payload.IntroductionResponsePayload
 
 class ShootCommunity(private val preferences: ShootPreferences) : Community() {
     private val logger = KotlinLogging.logger {}
@@ -20,7 +21,12 @@ class ShootCommunity(private val preferences: ShootPreferences) : Community() {
     private val greetingStream = MutableSharedFlow<ShootPeer>(10)
     val greetingFlow get() = greetingStream
         .scan(emptySet<ShootPeer>()) { acc, latest ->
-            if (!acc.contains(latest)) sendShootGreetingRequest(latest.peer)
+            if (!acc.contains(latest)) {
+                logger.info { "New peer: ${latest.peer.mid}" }
+                sendShootGreetingRequest(latest.peer)
+            } else {
+                logger.info { "Known peer: ${latest.peer.mid}" }
+            }
             acc.plus(latest)
         }
         .distinctUntilChanged()
@@ -81,12 +87,14 @@ class ShootCommunity(private val preferences: ShootPreferences) : Community() {
         send(peer.address, packet)
     }
 
-//    // For every peer that we are introduced to, send a community-specific greeting
-//    override fun onIntroductionResponse(
-//        peer: Peer,
-//        payload: IntroductionResponsePayload,
-//    ) {
-//        super.onIntroductionResponse(peer, payload)
-//        sendShootGreetingRequest(peer)
-//    }
+    // For every peer that we are introduced to, send a community-specific greeting
+    override fun onIntroductionResponse(
+        peer: Peer,
+        payload: IntroductionResponsePayload,
+    ) {
+        super.onIntroductionResponse(peer, payload)
+        if (peer !in network.verifiedPeers) {
+            sendShootGreetingRequest(peer)
+        }
+    }
 }
