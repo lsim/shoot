@@ -57,7 +57,7 @@ fun App(ipv8: IPV8Wrapper, preferences: ShootPreferences) {
         ipv8.shootPeerFlow
             .collect { peers ->
                 currentPeers.clear()
-                currentPeers.addAll(peers)
+                currentPeers.addAll(peers.values)
             }
     }
 
@@ -105,7 +105,7 @@ fun App(ipv8: IPV8Wrapper, preferences: ShootPreferences) {
             Row(Modifier.fillMaxHeight()) {
                 LazyColumn {
                     items(currentPeers.size) { index ->
-                        Text("${currentPeers[index].name} (${currentPeers[index].peer})")
+                        Text("${currentPeers[index].name} (${currentPeers[index].peer.mid})")
                     }
                 }
             }

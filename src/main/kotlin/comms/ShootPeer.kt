@@ -2,8 +2,10 @@ package comms
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import nl.tudelft.ipv8.Peer
+import nl.tudelft.ipv8.messaging.eva.TransferProgress
 import nl.tudelft.ipv8.util.sha1
 import java.io.File
+import java.net.URI
 
 class ShootPeer(val name: String, val peer: Peer, private val community: ShootCommunity) {
     private val logger = KotlinLogging.logger {}
@@ -25,7 +27,13 @@ class ShootPeer(val name: String, val peer: Peer, private val community: ShootCo
 
     fun sendFile(path: String) {
         val file = File(path)
-        val bytes: ByteArray = File(path).readBytes()
+        var bytes = ByteArray(0)
+        try {
+            bytes = File(URI(path)).readBytes()
+        } catch (e: Exception) {
+            logger.error { "Failed to read file $path bound for ${peer.mid}: ${e.message}" }
+        }
+        logger.debug { "Sending bytes $${bytes.size}" }
         // Nonce is the first 8 bytes of the SHA1 hash of the file contents. Hopefully this means we can send multiple versions of the same file
         val nonceBytes = sha1(bytes)
         var nonce = 0L
@@ -34,7 +42,22 @@ class ShootPeer(val name: String, val peer: Peer, private val community: ShootCo
             nonce = nonce shl 8
             nonce = nonce or (byte.toLong() and 0xff)
         }
-        logger.info { "Sending file ${file.name} to ${peer.mid} with nonce $nonce" }
+        logger.debug { "Sending file ${file.name} to ${peer.mid} with nonce $nonce" }
         community.evaSendBinary(peer, ShootCommunity::class.toString(), file.name, bytes, nonce)
+    }
+
+    fun handleFileReceiveComplete(info: String, transferId: String, data: ByteArray?) {
+        logger.info { "Received file $info with transferId $transferId" }
+//        TODO("Not yet implemented")
+    }
+
+    fun handleFileReceiveProgress(state: String, progress: TransferProgress) {
+        logger.info { "Received file progress $state, $progress" }
+//        TODO("Not yet implemented")
+    }
+
+    fun handleFileSendComplete(info: String, nonce: ULong) {
+        logger.info { "Sent file $info with nonce $nonce" }
+//        TODO("Not yet implemented")
     }
 }

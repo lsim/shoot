@@ -20,10 +20,11 @@ class ShootCommunity(private val preferences: ShootPreferences) : Community() {
 
     private val greetingStream = MutableSharedFlow<ShootPeer>(10)
     val greetingFlow get() = greetingStream
-        .scan(emptySet<ShootPeer>()) { acc, latest -> acc.plus(latest) }
+        .scan(emptyMap<String, ShootPeer>()) { acc, latest -> acc.plus(Pair(latest.peer.mid, latest)) }
         .distinctUntilChanged()
 
-    private val greetedPeers = mutableSetOf<Peer>()
+    private val greetedPeerIds = mutableSetOf<String>()
+    private var shootPeers = mapOf<String, ShootPeer>()
 
     init {
         // IPV8 offers a file transfer protocol - let's enable that
@@ -34,17 +35,25 @@ class ShootCommunity(private val preferences: ShootPreferences) : Community() {
 
     override fun load() {
         super.load()
-        evaProtocol?.onReceiveCompleteCallback = { peer, _, _, _,
+        evaProtocol?.onReceiveCompleteCallback = { peer, info, transferId, data,
             ->
-            logger.info { "Received file from ${peer.mid}" }
+            logger.debug { "Received file from ${peer.mid}" }
+            shootPeers[peer.mid]?.handleFileReceiveComplete(info, transferId, data)
         }
         evaProtocol?.onReceiveProgressCallback = { peer, state, progress,
             ->
-            logger.info { "File progress from ${peer.mid}: $state, $progress" }
+            logger.debug { "File progress from ${peer.mid}: $state, $progress" }
+            shootPeers[peer.mid]?.handleFileReceiveProgress(state, progress)
         }
-        evaProtocol?.onSendCompleteCallback = { peer, _, _,
+        evaProtocol?.onSendCompleteCallback = { peer, info, nonce,
             ->
-            logger.info { "Sent file to ${peer.mid}" }
+            logger.debug { "Sent file to ${peer.mid}" }
+            shootPeers[peer.mid]?.handleFileSendComplete(info, nonce)
+        }
+        scope.launch {
+            greetingFlow.collect { peers ->
+                shootPeers = peers
+            }
         }
     }
 
@@ -86,9 +95,9 @@ class ShootCommunity(private val preferences: ShootPreferences) : Community() {
         peer: Peer,
         payload: IntroductionResponsePayload,
     ) {
-        if (serviceId in network.getServicesForPeer(peer) && !greetedPeers.contains(peer)) {
+        if (serviceId in network.getServicesForPeer(peer) && !greetedPeerIds.contains(peer.mid)) {
             sendShootGreetingRequest(peer)
-            greetedPeers.add(peer)
+            greetedPeerIds.add(peer.mid)
         }
         super.onIntroductionResponse(peer, payload)
     }
