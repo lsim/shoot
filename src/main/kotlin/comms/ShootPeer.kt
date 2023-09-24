@@ -4,8 +4,10 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import nl.tudelft.ipv8.Peer
 import nl.tudelft.ipv8.messaging.eva.TransferProgress
 import nl.tudelft.ipv8.util.sha1
+import nl.tudelft.ipv8.util.toHex
 import java.io.File
 import java.net.URI
+import java.nio.file.Paths
 
 class ShootPeer(val name: String, val peer: Peer, private val community: ShootCommunity) {
     private val logger = KotlinLogging.logger {}
@@ -43,12 +45,23 @@ class ShootPeer(val name: String, val peer: Peer, private val community: ShootCo
             nonce = nonce or (byte.toLong() and 0xff)
         }
         logger.debug { "Sending file ${file.name} to ${peer.mid} with nonce $nonce" }
-        community.evaSendBinary(peer, ShootCommunity::class.toString(), file.name, bytes, nonce)
+        community.evaSendBinary(peer, file.name, nonceBytes.toHex(), bytes, nonce)
     }
 
-    fun handleFileReceiveComplete(info: String, transferId: String, data: ByteArray?) {
-        logger.info { "Received file $info with transferId $transferId" }
-//        TODO("Not yet implemented")
+    fun handleFileReceiveComplete(info: String, fileHash: String, data: ByteArray?) {
+        logger.info { "Received file $info with file hash $fileHash" }
+        val outputPath = community.preferences["outputPath", ""]
+        if (outputPath == "" || data == null) return
+        if (sha1(data).toHex() != fileHash) {
+            logger.error { "File hash mismatch for $info" }
+            return
+        }
+        val file = File(Paths.get(outputPath, info).toString())
+        try {
+            file.writeBytes(data)
+        } catch (e: Exception) {
+            logger.error { "Failed to write file $outputPath: ${e.message}" }
+        }
     }
 
     fun handleFileReceiveProgress(state: String, progress: TransferProgress) {

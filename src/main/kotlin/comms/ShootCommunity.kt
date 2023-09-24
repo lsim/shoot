@@ -13,7 +13,7 @@ import nl.tudelft.ipv8.Peer
 import nl.tudelft.ipv8.messaging.Packet
 import nl.tudelft.ipv8.messaging.payload.IntroductionResponsePayload
 
-class ShootCommunity(private val preferences: ShootPreferences) : Community() {
+class ShootCommunity(val preferences: ShootPreferences) : Community() {
     private val logger = KotlinLogging.logger {}
 
     override val serviceId = "cc82cb6e-db93-4792-84cf-fd3dbebfef3eef3e"

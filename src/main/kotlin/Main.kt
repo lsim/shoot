@@ -34,7 +34,7 @@ fun AppPreview() {
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun App(ipv8: IPV8Wrapper, preferences: ShootPreferences) {
-    var outputDir by remember { mutableStateOf(preferences["outputDir", ""]) }
+    var outputPath by remember { mutableStateOf(preferences["outputPath", ""]) }
 //    val droppedPaths = remember { mutableStateListOf<String>() }
     var showDirPicker by remember { mutableStateOf(false) }
     var indicatingGreen by remember { mutableStateOf(false) }
@@ -83,7 +83,7 @@ fun App(ipv8: IPV8Wrapper, preferences: ShootPreferences) {
                 .background(color.value),
         ) {
             Row(horizontalArrangement = Arrangement.SpaceBetween) {
-                Spacer(Modifier.weight(0.1f))
+                Text(text = "Saving to $outputPath", Modifier.weight(0.1f))
                 Button(
                     onClick = {
                         showDirPicker = true
@@ -94,7 +94,10 @@ fun App(ipv8: IPV8Wrapper, preferences: ShootPreferences) {
             }
             DirectoryPicker(showDirPicker) { path ->
                 showDirPicker = false
-                if (path != null) outputDir = path
+                if (path != null) {
+                    outputPath = path
+                    preferences["outputPath"] = path
+                }
             }
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
                 Text(
