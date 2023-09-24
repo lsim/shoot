@@ -42,7 +42,7 @@ fun App(ipv8: IPV8Wrapper, preferences: ShootPreferences) {
         .animateColor { state ->
             if (state) Color.Green else Color.White
         }
-    val logLines = remember { mutableStateListOf<String>() }
+//    val logLines = remember { mutableStateListOf<String>() }
 
     val currentPeers = remember { mutableStateListOf<ShootPeer>() }
 
@@ -73,16 +73,9 @@ fun App(ipv8: IPV8Wrapper, preferences: ShootPreferences) {
                         indicatingGreen = false
                         if (dragData is DragData.FilesList) {
                             val filePaths = dragData.readFiles()
-                            logger.info { "Dropped! ${filePaths.firstOrNull()}" }
-                            logLines.add("Dropped ${filePaths.size} files")
+                            logger.info { "Dropped! ${filePaths.firstOrNull()} currentPeers ${currentPeers.size}" }
                             for (path in filePaths) {
-                                val peer = currentPeers.firstOrNull()
-                                if (peer != null) {
-                                    logLines.add("Sending $path to $peer")
-                                    peer.sendFile(path)
-                                } else {
-                                    logLines.add("No peers to send $path to")
-                                }
+                                currentPeers.firstOrNull()?.sendFile(path)
                             }
                         }
                     },

@@ -38,9 +38,9 @@ class ShootCommunity(private val preferences: ShootPreferences) : Community() {
             ->
             logger.info { "Received file from ${peer.mid}" }
         }
-        evaProtocol?.onReceiveProgressCallback = { peer, _, progress,
+        evaProtocol?.onReceiveProgressCallback = { peer, state, progress,
             ->
-            logger.info { "File progress from ${peer.mid}: $progress" }
+            logger.info { "File progress from ${peer.mid}: $state, $progress" }
         }
         evaProtocol?.onSendCompleteCallback = { peer, _, _,
             ->

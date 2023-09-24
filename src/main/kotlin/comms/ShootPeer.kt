@@ -1,10 +1,13 @@
 package comms
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import nl.tudelft.ipv8.Peer
 import nl.tudelft.ipv8.util.sha1
 import java.io.File
 
 class ShootPeer(val name: String, val peer: Peer, private val community: ShootCommunity) {
+    private val logger = KotlinLogging.logger {}
+
     override fun toString(): String {
         return "ShootPeer(name='$name', id='$peer')"
     }
@@ -31,6 +34,7 @@ class ShootPeer(val name: String, val peer: Peer, private val community: ShootCo
             nonce = nonce shl 8
             nonce = nonce or (byte.toLong() and 0xff)
         }
+        logger.info { "Sending file ${file.name} to ${peer.mid} with nonce $nonce" }
         community.evaSendBinary(peer, ShootCommunity::class.toString(), file.name, bytes, nonce)
     }
 }
