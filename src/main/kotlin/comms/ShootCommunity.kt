@@ -23,7 +23,6 @@ class ShootCommunity(private val preferences: ShootPreferences) : Community() {
         .scan(emptySet<ShootPeer>()) { acc, latest ->
             if (latest !in acc) {
                 logger.info { "New peer: ${latest.peer.mid} acc.size ${acc.size}" }
-//                sendShootGreetingRequest(latest.peer)
             } else {
                 logger.info { "Known peer: ${latest.peer.mid}" }
             }
@@ -93,7 +92,7 @@ class ShootCommunity(private val preferences: ShootPreferences) : Community() {
         payload: IntroductionResponsePayload,
     ) {
         super.onIntroductionResponse(peer, payload)
-        if (peer !in network.verifiedPeers) {
+        if (peer.mid !in network.verifiedPeers.map { it.mid }) {
             sendShootGreetingRequest(peer)
         }
     }
