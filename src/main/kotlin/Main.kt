@@ -35,7 +35,7 @@ fun AppPreview() {
 @Composable
 fun App(ipv8: IPV8Wrapper, preferences: ShootPreferences) {
     var outputDir by remember { mutableStateOf(preferences["outputDir", ""]) }
-    val droppedPaths = remember { mutableStateListOf<String>() }
+//    val droppedPaths = remember { mutableStateListOf<String>() }
     var showDirPicker by remember { mutableStateOf(false) }
     var indicatingGreen by remember { mutableStateOf(false) }
     val color = updateTransition(indicatingGreen, label = "color")
