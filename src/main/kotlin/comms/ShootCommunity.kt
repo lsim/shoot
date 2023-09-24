@@ -20,15 +20,10 @@ class ShootCommunity(private val preferences: ShootPreferences) : Community() {
 
     private val greetingStream = MutableSharedFlow<ShootPeer>(10)
     val greetingFlow get() = greetingStream
-        .scan(emptySet<ShootPeer>()) { acc, latest ->
-            if (latest !in acc) {
-                logger.info { "New peer: ${latest.peer.mid} acc.size ${acc.size}" }
-            } else {
-                logger.info { "Known peer: ${latest.peer.mid}" }
-            }
-            acc.plus(latest)
-        }
+        .scan(emptySet<ShootPeer>()) { acc, latest -> acc.plus(latest) }
         .distinctUntilChanged()
+
+    private val greetedPeers = mutableSetOf<Peer>()
 
     init {
         // IPV8 offers a file transfer protocol - let's enable that
@@ -76,7 +71,7 @@ class ShootCommunity(private val preferences: ShootPreferences) : Community() {
 
     private fun sendShootGreetingRequest(peer: Peer) {
         val packet = serializePacket(GreetingMessageRequest.MESSAGE_ID, GreetingMessageRequest(preferences.user))
-        logger.info { "Sending greeting request to ${peer.mid} @ ${peer.address}: ${preferences.user}" }
+        logger.info { "Sending greeting request to ${peer.mid} @ ${peer.address} ${network.getServicesForPeer(peer)}: ${preferences.user}" }
         send(peer.address, packet)
     }
 
@@ -86,13 +81,14 @@ class ShootCommunity(private val preferences: ShootPreferences) : Community() {
         send(peer.address, packet)
     }
 
-    // For every peer that we are introduced to, send a community-specific greeting
+    // For every new shoot peer that we are introduced to, send a community-specific greeting
     override fun onIntroductionResponse(
         peer: Peer,
         payload: IntroductionResponsePayload,
     ) {
-        if (peer.mid !in network.verifiedPeers.map { it.mid }) {
+        if (serviceId in network.getServicesForPeer(peer) && !greetedPeers.contains(peer)) {
             sendShootGreetingRequest(peer)
+            greetedPeers.add(peer)
         }
         super.onIntroductionResponse(peer, payload)
     }
