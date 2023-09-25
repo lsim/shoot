@@ -58,35 +58,35 @@ class ShootCommunity(val preferences: ShootPreferences) : Community() {
     }
 
     private fun handleGreetingRequest(packet: Packet) {
-        logger.info { "Received greeting request from ${packet.source}" }
         val (peer, payload) = packet.getAuthPayload(GreetingMessageRequest.Deserializer)
-        logger.info { "Verified greeting request from ${packet.source}" }
         scope.launch {
-            greetingStream.emit(ShootPeer(payload.userName, peer, this@ShootCommunity))
+            greetingStream.emit(ShootPeer(payload.instanceName, peer, this@ShootCommunity))
         }
-        logger.info { "Received greeting request from peer ${peer.mid}: ${payload.userName}" }
+        logger.debug { "Received greeting request from peer ${peer.mid}: ${payload.instanceName}" }
         sendShootGreetingResponse(peer)
     }
 
     private fun handleGreetingResponse(packet: Packet) {
-        logger.info { "Received greeting response from ${packet.source}" }
         val (peer, payload) = packet.getAuthPayload(GreetingMessageResponse.Deserializer)
-        logger.info { "Verified greeting response from ${packet.source}" }
         scope.launch {
-            greetingStream.emit(ShootPeer(payload.userName, peer, this@ShootCommunity))
+            greetingStream.emit(ShootPeer(payload.instanceName, peer, this@ShootCommunity))
         }
-        logger.info { "Received greeting response from peer ${peer.mid}: ${payload.userName}" }
+        logger.debug { "Received greeting response from peer ${peer.mid}: ${payload.instanceName}" }
+    }
+
+    private fun instanceId(): String {
+        return preferences["instanceId", "${preferences.user}@${preferences.hostname}"]
     }
 
     private fun sendShootGreetingRequest(peer: Peer) {
-        val packet = serializePacket(GreetingMessageRequest.MESSAGE_ID, GreetingMessageRequest(preferences.user))
-        logger.info { "Sending greeting request to ${peer.mid} @ ${peer.address} ${network.getServicesForPeer(peer)}: ${preferences.user}" }
+        val packet = serializePacket(GreetingMessageRequest.MESSAGE_ID, GreetingMessageRequest(instanceId()))
+        logger.debug { "Sending greeting request to ${peer.mid} @ ${peer.address} ${network.getServicesForPeer(peer)}: ${preferences.user}" }
         send(peer.address, packet)
     }
 
     private fun sendShootGreetingResponse(peer: Peer) {
-        val packet = serializePacket(GreetingMessageResponse.MESSAGE_ID, GreetingMessageResponse(preferences.user))
-        logger.info { "Sending greeting response to ${peer.mid} @ ${peer.address}: ${preferences.user}" }
+        val packet = serializePacket(GreetingMessageResponse.MESSAGE_ID, GreetingMessageResponse(instanceId()))
+        logger.debug { "Sending greeting response to ${peer.mid} @ ${peer.address}: ${preferences.user}" }
         send(peer.address, packet)
     }
 
