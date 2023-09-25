@@ -21,6 +21,9 @@ class ShootPreferences(val testing: Boolean = false) {
 
     val user get() = System.getProperty("user.name")
     val hostname get() = System.getenv("COMPUTERNAME") ?: System.getenv("HOSTNAME") ?: "unknown"
+    val userHome get() = System.getProperty("user.home") ?: ""
+
+    val defaultOutputPath = "$userHome/Downloads"
 
     operator fun get(key: String, def: String): String {
         return preferences[key, def]

@@ -34,7 +34,7 @@ fun AppPreview() {
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun App(ipv8: IPV8Wrapper, preferences: ShootPreferences) {
-    var outputPath by remember { mutableStateOf(preferences["outputPath", ""]) }
+    var outputPath by remember { mutableStateOf(preferences["outputPath", preferences.defaultOutputPath]) }
 //    val droppedPaths = remember { mutableStateListOf<String>() }
     var showDirPicker by remember { mutableStateOf(false) }
     var indicatingGreen by remember { mutableStateOf(false) }
@@ -89,7 +89,7 @@ fun App(ipv8: IPV8Wrapper, preferences: ShootPreferences) {
                         showDirPicker = true
                     },
                 ) {
-                    Text("Pick output folder")
+                    Text("Set output folder")
                 }
             }
             DirectoryPicker(showDirPicker) { path ->

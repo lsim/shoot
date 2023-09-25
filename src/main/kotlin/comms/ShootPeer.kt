@@ -50,7 +50,7 @@ class ShootPeer(val name: String, val peer: Peer, private val community: ShootCo
 
     fun handleFileReceiveComplete(info: String, fileHash: String, data: ByteArray?) {
         logger.info { "Received file $info with file hash $fileHash" }
-        val outputPath = community.preferences["outputPath", ""]
+        val outputPath = community.preferences["outputPath", community.preferences.defaultOutputPath]
         if (outputPath == "" || data == null) return
         if (sha1(data).toHex() != fileHash) {
             logger.error { "File hash mismatch for $info" }
